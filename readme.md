@@ -33,7 +33,7 @@ Label	Emotion
 🏗️ Project Structure
 speech_emotion/
 │
-├── app.py                 # Streamlit web app
+├── web_app.py                 # Streamlit web app
 ├── predict.py             # CLI-based prediction
 ├── predict_utils.py       # Prediction logic
 │
