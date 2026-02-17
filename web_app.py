@@ -70,10 +70,20 @@ models = load_models()
 # -----------------------------
 # FEATURE PREP
 # -----------------------------
-def prepare_input(audio_path):
-    features = extract_features(audio_path)           # (174, 128)
-    tensor   = torch.tensor(features, dtype=torch.float32)
-    return tensor.unsqueeze(0).to(device)             # (1, 174, 128)
+def prepare_input(audio_path, model_name):
+    features = extract_features(audio_path)  # (174, 128)
+
+    if model_name in ["CNN", "CNN+LSTM"]:
+        # These expect (1, 174, 128)
+        tensor = torch.tensor(features, dtype=torch.float32)
+        return tensor.unsqueeze(0).to(device)
+
+    else:
+        # RNN / LSTM / GRU expect (1, time, 40)
+        mfcc = features[:40, :]              # (40, 128) — just MFCCs
+        mfcc = mfcc.T                        # (128, 40)
+        tensor = torch.tensor(mfcc, dtype=torch.float32)
+        return tensor.unsqueeze(0).to(device)  # (1, 128, 40)
 
 # -----------------------------
 # STREAMLIT UI
@@ -85,6 +95,8 @@ st.subheader("Compare multiple deep learning models")
 if not models:
     st.warning("⚠️ No trained models found. Please run train.py first.")
     st.stop()
+
+st.write(f"✅ Loaded models: {', '.join(models.keys())}")
 
 mode = st.radio("Choose Mode", ["Compare Models", "Select Model"])
 
@@ -102,15 +114,19 @@ if mode == "Compare Models" and audio_file:
 
     for idx, (name, model) in enumerate(models.items()):
         with cols[idx]:
-            inp = prepare_input("temp.wav")
-            with torch.no_grad():
-                probs = torch.softmax(model(inp), dim=1)[0]
-            pred       = torch.argmax(probs).item()
-            confidence = probs[pred].item() * 100
+            try:
+                inp = prepare_input("temp.wav", name)
+                with torch.no_grad():
+                    probs = torch.softmax(model(inp), dim=1)[0]
+                pred       = torch.argmax(probs).item()
+                confidence = probs[pred].item() * 100
 
-            st.markdown(f"### {name}")
-            st.write(f"**Emotion:** {EMOTIONS[pred]}")
-            st.write(f"**Confidence:** {confidence:.2f}%")
+                st.markdown(f"### {name}")
+                st.write(f"**Emotion:** {EMOTIONS[pred]}")
+                st.write(f"**Confidence:** {confidence:.2f}%")
+            except Exception as e:
+                st.markdown(f"### {name}")
+                st.error(f"Error: {e}")
 
 # -----------------------------
 # MODE 2: SELECT MODEL
@@ -122,12 +138,21 @@ elif mode == "Select Model":
         with open("temp.wav", "wb") as f:
             f.write(audio_file.read())
 
-        inp = prepare_input("temp.wav")
-        with torch.no_grad():
-            probs = torch.softmax(models[selected](inp), dim=1)[0]
+        try:
+            inp = prepare_input("temp.wav", selected)
+            with torch.no_grad():
+                probs = torch.softmax(models[selected](inp), dim=1)[0]
 
-        pred       = torch.argmax(probs).item()
-        confidence = probs[pred].item() * 100
+            pred       = torch.argmax(probs).item()
+            confidence = probs[pred].item() * 100
 
-        st.success(f"🎯 **Emotion:** {EMOTIONS[pred]}")
-        st.info(f"📊 **Confidence:** {confidence:.2f}%")
+            st.success(f"🎯 **Emotion:** {EMOTIONS[pred]}")
+            st.info(f"📊 **Confidence:** {confidence:.2f}%")
+
+            # Show all emotion probabilities
+            st.markdown("### 📊 All Emotion Probabilities")
+            for i, emotion in enumerate(EMOTIONS):
+                st.progress(float(probs[i].item()), text=f"{emotion}: {probs[i].item()*100:.1f}%")
+
+        except Exception as e:
+            st.error(f"Error: {e}")
