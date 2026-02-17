@@ -36,7 +36,7 @@ print("Using model:", MODEL_TYPE)
 # -----------------------------
 # DATASET
 # -----------------------------
-use_augment = (MODEL_TYPE == 'cnn_lstm')  # augment only for new model
+use_augment = False  # augment only for new model
 dataset = RAVDESSDataset("data/RAVDESS", augment=use_augment)
 total_size = len(dataset)
 print(f"Total samples (with augmentation): {total_size}")
