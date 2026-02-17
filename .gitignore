@@ -6,3 +6,4 @@ temp.wav
 venv/
 .env
 .DS_Store
+data/
