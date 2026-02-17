@@ -27,7 +27,7 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 # -----------------------------
 # DATASET SPLIT
 # -----------------------------
-dataset = RAVDESSDataset("data/RAVDESS")
+dataset = RAVDESSDataset("data/RAVDESS", augment=True)
 total_size = len(dataset)
 
 train_size = int(0.7 * total_size)
