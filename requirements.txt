@@ -1,0 +1,17 @@
+# Core ML
+torch>=2.0.0
+numpy>=1.23.0
+
+# Audio processing
+librosa>=0.10.0
+resampy>=0.4.2
+soundfile>=0.12.1
+scipy>=1.9.0
+
+# Visualization & metrics
+matplotlib>=3.6.0
+scikit-learn>=1.2.0
+
+# Web App
+streamlit>=1.25.0
+sounddevice>=0.4.6
