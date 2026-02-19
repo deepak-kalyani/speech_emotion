@@ -98,24 +98,57 @@ if not models:
 
 st.write(f"✅ Loaded models: {', '.join(models.keys())}")
 
-mode = st.radio("Choose Mode", ["Compare Models", "Select Model"])
+# -----------------------------
+# INPUT METHOD SELECTION
+# -----------------------------
+st.markdown("### 🎵 Choose Input Method")
+input_method = st.radio("", ["Upload Audio File", "Record Voice Live"], horizontal=True)
 
-audio_file = st.file_uploader("Upload WAV Audio", type=["wav"])
+audio_file = None
+
+if input_method == "Upload Audio File":
+    uploaded = st.file_uploader("Upload WAV Audio", type=["wav"])
+    if uploaded:
+        with open("temp.wav", "wb") as f:
+            f.write(uploaded.read())
+        audio_file = "temp.wav"
+
+elif input_method == "Record Voice Live":
+    st.markdown("### 🎙️ Record Your Voice")
+    
+    duration = st.slider("Recording duration (seconds)", 1, 10, 3)
+    
+    if st.button("🔴 Start Recording", type="primary"):
+        import sounddevice as sd
+        import scipy.io.wavfile as wav
+        
+        with st.spinner(f"Recording for {duration} seconds... Speak now!"):
+            # Record
+            fs = 22050  # Sample rate
+            recording = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='float32')
+            sd.wait()  # Wait until recording is finished
+            
+            # Save
+            wav.write("temp.wav", fs, recording)
+            audio_file = "temp.wav"
+        
+        st.success("✅ Recording complete!")
+        st.audio("temp.wav")
+
+st.markdown("---")
+mode = st.radio("Choose Mode", ["Compare Models", "Select Model"])
 
 # -----------------------------
 # MODE 1: COMPARE MODELS
 # -----------------------------
-if mode == "Compare Models" and audio_file:
-    with open("temp.wav", "wb") as f:
-        f.write(audio_file.read())
-
+if mode == "Compare Models" and audio_file is not None:
     st.markdown("### 🔍 Model Comparison Results")
     cols = st.columns(len(models))
 
     for idx, (name, model) in enumerate(models.items()):
         with cols[idx]:
             try:
-                inp = prepare_input("temp.wav", name)
+                inp = prepare_input(audio_file, name)
                 with torch.no_grad():
                     probs = torch.softmax(model(inp), dim=1)[0]
                 pred       = torch.argmax(probs).item()
@@ -134,12 +167,9 @@ if mode == "Compare Models" and audio_file:
 elif mode == "Select Model":
     selected = st.selectbox("Choose Model", list(models.keys()))
 
-    if audio_file:
-        with open("temp.wav", "wb") as f:
-            f.write(audio_file.read())
-
+    if audio_file is not None:
         try:
-            inp = prepare_input("temp.wav", selected)
+            inp = prepare_input(audio_file, selected)
             with torch.no_grad():
                 probs = torch.softmax(models[selected](inp), dim=1)[0]
 
