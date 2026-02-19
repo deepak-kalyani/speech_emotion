@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Kalyani
+    given-names: Deepak
+title: "Speech Emotion Recognition using CNN+LSTM"
+version: 1.0.0
+date-released: 2026-02-18
+url: "https://github.com/deepak-kalyani/speech_emotion"

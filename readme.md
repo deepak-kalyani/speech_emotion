@@ -121,6 +121,7 @@ Then open the URL shown in the terminal (typically `http://localhost:8501`).
 
 ### App Capabilities:
 - Upload `.wav` audio files
+- Record live voice for real-time emotion detection
 - Compare predictions across multiple models
 - View confidence scores and emotion probabilities
 - Interactive, real-time predictions
@@ -181,6 +182,23 @@ Results are saved in model-specific folders (`results/`, `results_cnn_lstm/`, et
 
 ---
 
+## ⚠️ Known Limitations
+
+### Live Recording Accuracy
+- The model was trained on **professionally acted emotions** (RAVDESS dataset), so it performs best on exaggerated, theatrical speech
+- Natural conversational speech may not be classified accurately
+- **Recommendation:** For live recording, speak with exaggerated emotions and clear enunciation
+- **Example:** Instead of saying "how are you?" normally, try shouting angrily or speaking with theatrical sadness
+
+### Future Work
+This is a known challenge in speech emotion recognition. Planned improvements:
+- Fine-tune on real-world conversational emotional speech
+- Collect and label natural emotion dataset
+- Add domain adaptation techniques
+- Implement noise reduction preprocessing
+
+---
+
 ## 🧪 Running Tests
 ```bash
 python tests/test_features.py
@@ -222,8 +240,43 @@ This project is ready for deployment on:
 
 ## 👨‍💻 Author
 
-**Speech Emotion Recognition Project**  
-Built as a complete end-to-end ML application using PyTorch and Streamlit.
+**Deepak Kalyani**
+
+[![GitHub](https://img.shields.io/badge/GitHub-deepak--kalyani-181717?style=flat&logo=github)](https://github.com/deepak-kalyani)
+
+*Built as a complete end-to-end ML application using PyTorch and Streamlit*
+
+---
+
+## 📜 Citation
+
+If you use this project in your research or work, please cite:
+```bibtex
+@software{kalyani2026speech,
+  author = {Kalyani, Deepak},
+  title = {Speech Emotion Recognition using CNN+LSTM},
+  year = {2026},
+  publisher = {GitHub},
+  url = {https://github.com/deepak-kalyani/speech_emotion}
+}
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+**Copyright © 2026 Deepak Kalyani. All rights reserved.**
+
+---
+
+## 🙏 Acknowledgments
+
+- **RAVDESS Dataset** creators for providing high-quality emotional speech data
+- **PyTorch** and **Streamlit** communities for excellent frameworks
+- **Librosa** developers for powerful audio processing capabilities
+- All contributors and researchers in the speech emotion recognition field
 
 ---
 
@@ -235,4 +288,9 @@ Built as a complete end-to-end ML application using PyTorch and Streamlit.
 ✅ Clean, modular, production-ready code  
 ✅ Unit tests included  
 ✅ Interactive web interface  
-✅ 87.5% accuracy on speaker-independent test set
+✅ 87.5% accuracy on speaker-independent test set  
+✅ Real-time voice recording capability
+
+---
+
+**⭐ If you found this project helpful, please consider giving it a star on GitHub!**
