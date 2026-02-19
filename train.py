@@ -1,3 +1,10 @@
+"""
+Speech Emotion Recognition System
+Copyright (c) 2026 Deepak Kalyani
+Licensed under MIT License - see LICENSE file for details
+GitHub: https://github.com/deepak-kalyani/speech_emotion
+"""
+
 import os
 import torch
 import numpy as np
