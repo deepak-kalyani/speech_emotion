@@ -30,19 +30,29 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def load_models():
     models = {}
 
+    # Best model - Combined RAVDESS + TESS
+    try:
+        cnn_lstm_combined = CNNLSTMModel().to(device)
+        cnn_lstm_combined.load_state_dict(torch.load("results_combined/best_model.pth", map_location=device))
+        cnn_lstm_combined.eval()
+        models["CNN+LSTM (RAVDESS+TESS) ⭐"] = cnn_lstm_combined
+    except Exception as e:
+        print(f"Could not load combined model: {e}")
+
+    # RAVDESS-only CNN+LSTM
+    try:
+        cnn_lstm = CNNLSTMModel().to(device)
+        cnn_lstm.load_state_dict(torch.load("results_cnn_lstm/best_model.pth", map_location=device))
+        cnn_lstm.eval()
+        models["CNN+LSTM (RAVDESS only)"] = cnn_lstm
+    except:
+        pass
+
     try:
         cnn = EmotionCNN().to(device)
         cnn.load_state_dict(torch.load("results/best_emotion_cnn.pth", map_location=device))
         cnn.eval()
         models["CNN"] = cnn
-    except:
-        pass
-
-    try:
-        cnn_lstm = CNNLSTMModel().to(device)
-        cnn_lstm.load_state_dict(torch.load("results_cnn_lstm/best_model.pth", map_location=device))
-        cnn_lstm.eval()
-        models["CNN+LSTM"] = cnn_lstm
     except:
         pass
 
@@ -80,7 +90,7 @@ models = load_models()
 def prepare_input(audio_path, model_name):
     features = extract_features(audio_path)  # (174, 128)
 
-    if model_name in ["CNN", "CNN+LSTM"]:
+    if "CNN+LSTM" in model_name or model_name == "CNN":
         # These expect (1, 174, 128)
         tensor = torch.tensor(features, dtype=torch.float32)
         return tensor.unsqueeze(0).to(device)
@@ -105,6 +115,10 @@ if not models:
 
 st.write(f"✅ Loaded models: {', '.join(models.keys())}")
 
+# Show best model performance
+if "CNN+LSTM (RAVDESS+TESS) ⭐" in models:
+    st.info("⭐ **Best Model:** CNN+LSTM trained on RAVDESS + TESS (4,240 samples) — **94.1% accuracy**")
+
 # -----------------------------
 # INPUT METHOD SELECTION
 # -----------------------------
@@ -122,6 +136,8 @@ if input_method == "Upload Audio File":
 
 elif input_method == "Record Voice Live":
     st.markdown("### 🎙️ Record Your Voice")
+    
+    st.info("💡 **Tip:** The model was trained on acted emotions. For best results, speak with exaggerated emotions like an actor!")
     
     duration = st.slider("Recording duration (seconds)", 1, 10, 3)
     
@@ -161,7 +177,13 @@ if mode == "Compare Models" and audio_file is not None:
                 pred       = torch.argmax(probs).item()
                 confidence = probs[pred].item() * 100
 
-                st.markdown(f"### {name}")
+                # Add star emoji for best model
+                display_name = name.replace(" ⭐", "")
+                if "⭐" in name:
+                    st.markdown(f"### ⭐ {display_name}")
+                else:
+                    st.markdown(f"### {display_name}")
+                
                 st.write(f"**Emotion:** {EMOTIONS[pred]}")
                 st.write(f"**Confidence:** {confidence:.2f}%")
             except Exception as e:
