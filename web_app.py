@@ -133,6 +133,10 @@ if input_method == "Upload Audio File":
         with open("temp.wav", "wb") as f:
             f.write(uploaded.read())
         audio_file = "temp.wav"
+        
+        # Add audio player to listen to uploaded file
+        st.markdown("#### 🔊 Play Audio")
+        st.audio(audio_file, format='audio/wav')
 
 elif input_method == "Record Voice Live":
     st.markdown("### 🎙️ Record Your Voice")
@@ -156,7 +160,10 @@ elif input_method == "Record Voice Live":
             audio_file = "temp.wav"
         
         st.success("✅ Recording complete!")
-        st.audio("temp.wav")
+        
+        # Add audio player to listen to recording
+        st.markdown("#### 🔊 Play Recording")
+        st.audio("temp.wav", format='audio/wav')
 
 st.markdown("---")
 mode = st.radio("Choose Mode", ["Compare Models", "Select Model"])
