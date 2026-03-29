@@ -3,7 +3,7 @@ import torch
 import librosa
 import numpy as np
 from torch.utils.data import Dataset
-from features import extract_features, extract_features_from_array
+from features import extract_features_from_array
 from augment import augment_audio
 
 class RAVDESSDataset(Dataset):
@@ -17,13 +17,13 @@ class RAVDESSDataset(Dataset):
                     path = os.path.join(root, file)
                     label = int(file[6:8]) - 1
 
-                    # Original
-                    self.features.append(extract_features(path))
+                    # Load audio once; reuse for original features and augmentation
+                    y, sr = librosa.load(path, sr=22050, res_type='kaiser_fast')
+                    self.features.append(extract_features_from_array(y, sr))
                     self.labels.append(label)
 
                     # Augmented versions (training only)
                     if augment:
-                        y, sr = librosa.load(path, sr=22050, res_type='kaiser_fast')
                         for aug_y in augment_audio(y, sr):
                             self.features.append(extract_features_from_array(aug_y, sr))
                             self.labels.append(label)

@@ -9,13 +9,18 @@ def extract_features_from_array(y, sr=22050, n_mfcc=40, max_len=128):
     return _build_features(y, sr, n_mfcc, max_len)
 
 def _build_features(y, sr, n_mfcc=40, max_len=128):
-    mfcc        = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc)
-    delta_mfcc  = librosa.feature.delta(mfcc)
-    delta2_mfcc = librosa.feature.delta(mfcc, order=2)
-    mel         = librosa.power_to_db(librosa.feature.melspectrogram(y=y, sr=sr, n_mels=40), ref=np.max)
-    chroma      = librosa.feature.chroma_stft(y=y, sr=sr, n_chroma=12)
-    zcr         = librosa.feature.zero_crossing_rate(y)
-    rms         = librosa.feature.rms(y=y)
+    # Compute STFT once and share it across all spectral features
+    D            = np.abs(librosa.stft(y))
+    power        = D ** 2
+
+    mel_for_mfcc = librosa.feature.melspectrogram(S=power, sr=sr, n_mels=128)
+    mfcc         = librosa.feature.mfcc(S=librosa.power_to_db(mel_for_mfcc), sr=sr, n_mfcc=n_mfcc)
+    delta_mfcc   = librosa.feature.delta(mfcc)
+    delta2_mfcc  = librosa.feature.delta(mfcc, order=2)
+    mel          = librosa.power_to_db(librosa.feature.melspectrogram(S=power, sr=sr, n_mels=40), ref=np.max)
+    chroma       = librosa.feature.chroma_stft(S=D, sr=sr, n_chroma=12)
+    zcr          = librosa.feature.zero_crossing_rate(y)
+    rms          = librosa.feature.rms(y=y)
 
     combined = np.vstack([mfcc, delta_mfcc, delta2_mfcc, mel, chroma, zcr, rms])  # (174, time)
 

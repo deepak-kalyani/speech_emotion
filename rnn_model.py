@@ -64,27 +64,24 @@ if __name__ == "__main__":
 
     class RNNEmotionDataset(Dataset):
         def __init__(self, actors):
-            self.samples = []
+            self.features = []
+            self.labels = []
             for actor in actors:
                 actor_path = os.path.join(DATASET_PATH, actor)
                 for file in os.listdir(actor_path):
                     if file.endswith(".wav"):
                         path = os.path.join(actor_path, file)
                         label = int(file[6:8]) - 1
-                        self.samples.append((path, label))
+                        mfcc = extract_features(path)
+                        mfcc = pad_or_truncate(mfcc.T, MAX_LEN)
+                        self.features.append(torch.tensor(mfcc, dtype=torch.float32))
+                        self.labels.append(torch.tensor(label, dtype=torch.long))
 
         def __len__(self):
-            return len(self.samples)
+            return len(self.features)
 
         def __getitem__(self, idx):
-            path, label = self.samples[idx]
-            mfcc = extract_features(path)   # (174, 128)
-            mfcc = mfcc.T                   # (128, 174)
-            mfcc = pad_or_truncate(mfcc, MAX_LEN)
-            return (
-                torch.tensor(mfcc, dtype=torch.float32),
-                torch.tensor(label, dtype=torch.long)
-            )
+            return self.features[idx], self.labels[idx]
 
     print("Using device:", device)
 
