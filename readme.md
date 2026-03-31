@@ -7,7 +7,7 @@ A deep learning–based Speech Emotion Recognition system built using PyTorch an
 ## 🚀 Features
 
 - 🎵 Emotion prediction from .wav audio files
-- 🎙️ Live voice recording and real-time prediction
+- 🎙️ Live voice recording with audio playback and real-time prediction
 - 🧠 Multiple deep learning models (CNN, CNN+LSTM, RNN, LSTM, GRU)
 - ⚡ GPU acceleration supported (CUDA)
 - 📊 Confidence scores and emotion probabilities
@@ -110,6 +110,11 @@ speech_emotion/
 
 ## ⚙️ Installation & Setup
 
+### Prerequisites
+
+- **Python 3.10.11 or 3.11.x** (Python 3.12+ not yet fully compatible)
+- For managing multiple Python versions, use [pyenv-win](https://github.com/pyenv-win/pyenv-win) (Windows) or pyenv (Mac/Linux)
+
 ### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/deepak-kalyani/speech_emotion.git
@@ -125,6 +130,7 @@ source venv/bin/activate  # Mac/Linux
 
 ### 3️⃣ Install dependencies
 ```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
@@ -138,11 +144,13 @@ streamlit run web_app.py
 Then open the URL shown in the terminal (typically `http://localhost:8501`).
 
 ### App Capabilities:
-- Upload `.wav` audio files
-- Record live voice for real-time emotion detection
-- Compare predictions across multiple models
+
+- Upload `.wav` audio files with audio playback
+- Record live voice (1-10 seconds) with playback preview
+- Real-time emotion detection
+- Compare predictions across 5 models simultaneously
 - View confidence scores and emotion probabilities
-- Interactive, real-time predictions
+- Interactive probability bars for all 8 emotions
 
 ---
 
@@ -196,6 +204,7 @@ Then open the URL shown in the terminal (typically `http://localhost:8501`).
 - **Training time:** ~60 epochs (early stopped)
 
 **Detailed per-emotion metrics:**
+
 | Emotion | Precision | Recall | F1-Score | Support |
 |---------|-----------|--------|----------|---------|
 | Neutral | 0.94 | 0.94 | 0.94 | 87 |
@@ -232,12 +241,14 @@ Results are saved in model-specific folders:
 ## ⚠️ Known Limitations
 
 ### Live Recording Accuracy
+
 - The model was trained on **professionally acted emotions** (RAVDESS + TESS datasets), so it performs best on exaggerated, theatrical speech
 - Natural conversational speech may not be classified accurately
 - **Recommendation:** For live recording, speak with exaggerated emotions and clear enunciation
 - **Example:** Instead of saying "how are you?" normally, try shouting angrily or speaking with theatrical sadness
 
 ### Future Work
+
 This is a known challenge in speech emotion recognition. Planned improvements:
 - Fine-tune on real-world conversational emotional speech
 - Collect and label natural emotion dataset
@@ -256,13 +267,47 @@ python tests/test_model.py
 
 ## 💡 Technologies Used
 
-- **Python 3.10+**
-- **PyTorch** (deep learning)
-- **Librosa** (audio processing)
-- **NumPy** (numerical computing)
-- **Scikit-learn** (metrics & preprocessing)
-- **Streamlit** (web interface)
-- **Matplotlib** (visualization)
+- **Python 3.10.11** (recommended)
+- **PyTorch 2.0+** (deep learning framework)
+- **Librosa 0.10+** (audio feature extraction)
+- **NumPy 1.26** (numerical computing)
+- **Scikit-learn 1.3+** (metrics & evaluation)
+- **Streamlit 1.30+** (interactive web interface)
+- **SoundDevice 0.4+** (live audio recording)
+- **Matplotlib 3.7+** (data visualization)
+- **Resampy 0.4+** (audio resampling)
+- **SciPy 1.10+** (scientific computing)
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**"No module named 'sounddevice'"**
+```bash
+pip install sounddevice
+```
+
+**"No module named 'resampy'"**
+```bash
+pip install resampy
+```
+
+**NumPy compilation errors on Windows**
+- Use Python 3.10.11 or 3.11.x (not 3.12+)
+- Ensure you're using 64-bit Python
+- Pre-compiled wheels available for Python 3.10-3.11
+
+**Microphone not working in live recording**
+- Grant microphone permissions to your terminal/Python
+- Check system audio settings
+- Ensure no other application is using the microphone
+
+**Model loading errors**
+- Verify model files exist in `results_combined/` folder
+- Re-download trained models if corrupted
+- Check PyTorch version compatibility
 
 ---
 
