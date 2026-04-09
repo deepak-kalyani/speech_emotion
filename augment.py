@@ -13,7 +13,7 @@ def augment_audio(y, sr):
         augmented.append(librosa.effects.pitch_shift(y, sr=sr, n_steps=steps))
 
     # 3. Add noise
-    augmented.append(y + 0.005 * np.random.randn(len(y)))
+    augmented.append(y + 0.005 * np.random.randn(y.shape[0]))
 
     # 4. Time shift
     augmented.append(np.roll(y, int(sr * 0.1)))
